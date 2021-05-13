@@ -2,8 +2,10 @@ package nl.homberghp.fxuiscraper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import java.util.stream.Stream;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
@@ -77,6 +79,11 @@ public interface FXUIScraper {
                 .collect( toList() );
     }
 
+    /**
+     * Intermediate stream of name property pairs.
+     * @param filter to apply
+     * @return Stream of name TextInputControls
+     */
     default Stream<TextInputControl> textInputControlStream( 
             Predicate<Node> filter ) {
         Stream<TextInputControl> map = scrape( filter )
@@ -85,15 +92,29 @@ public interface FXUIScraper {
         return map;
     }
 
+    /**
+     * Return the scraped data as a list of tuples.
+     * @param pred filter to apply
+     * @return map of input
+     */
     default List<KeyValuePair<String, String>> getNamedTextValues( 
-            Predicate<Node> filter ) {
-        return textInputControlStream( filter )
+            Predicate<Node> pred ) {
+        return textInputControlStream( pred )
                 .map( n -> new KeyValuePairImpl<String, String>(
                 n.getId(), n.getText()
         ) ).collect( toList() );
 
     }
 
+    /**
+     * Return the scraped data as a map of string,string.
+     * @param pred filter to apply
+     * @return the map
+     */
+    default Map<String,String> getKeyValues(Predicate<Node> pred){
+        return textInputControlStream( pred )
+                .collect( toMap(n-> n.getId(),n->n.getText()));
+    }
     /**
      * Convenience factory method to start at any parent.
      * 

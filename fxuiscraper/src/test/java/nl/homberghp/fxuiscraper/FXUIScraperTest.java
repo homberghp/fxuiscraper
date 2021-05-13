@@ -40,9 +40,10 @@ public class FXUIScraperTest {
     }
     CustomerController cc;
     Parent pane;
+
     @Start
     void start( Stage stage ) throws IOException {
-        cc= new CustomerController();
+        cc = new CustomerController();
         pane = cc.getRoot();
 
     }
@@ -50,7 +51,8 @@ public class FXUIScraperTest {
     //@Disabled("Think TDD")
     @org.junit.jupiter.api.Test
     public void tScrape() {
-        List<Node> scrape = FXUIScraper.standardScraper( cc.getRoot() ).scrape(   n -> n instanceof TextInputControl );
+        List<Node> scrape = FXUIScraper.standardScraper( cc.getRoot() ).scrape(
+                n -> n instanceof TextInputControl );
         List<String> collect = scrape
                 .stream()
                 .map( n -> TextInputControl.class.cast( n ) )
@@ -118,10 +120,25 @@ public class FXUIScraperTest {
     void tShorterCode() {
         FXUIScraper scraper = () -> pane; // <1>
         // all named nodes
-        List<Node> allTextControls = scraper.scrape( n -> (null != n.getId())
-                && (n instanceof TextInputControl) );
+        Predicate<Node> pred = n -> ( null != n.getId() )
+                && ( n instanceof TextInputControl );
+        List<Node> allTextControls = scraper.scrape( pred );
         assertThat( allTextControls ).hasSize( 3 ); //<4>  FXUIScraper scraper = ()-> pane;
 
 //        fail( "method ShorterCode completed succesfully; you know what to do" );
+    }
+
+    //@Disabled("Think TDD")
+    @Test
+    void tKeyValues() {
+        FXUIScraper scraper = () -> pane; // <1>
+        Predicate<Node> pred = n -> ( null != n.getId() )
+                && ( n instanceof TextInputControl );
+        Map<String, String> map = scraper.getKeyValues( pred );
+        assertThat( map ).containsExactlyInAnyOrderEntriesOf(
+                Map.of( "name", "Piet Puk",
+                        "dob", "2021-05-12",
+                        "city", "Venlo" ));
+//        fail( "method KeyValues completed succesfully; you know what to do" );
     }
 }
