@@ -2,7 +2,7 @@
 
 = Java FX UI Scraper
 
-Simple interface to extract input values and properties from a java fx Parent.
+Simple interface to extract input values and properties from a JavaFX Parent.
 
 Inspired by https://stackoverflow.com/questions/13011023/javafx-looping-over-scenegraph-controls[StackOverflow #13011023].
 
