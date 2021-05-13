@@ -84,3 +84,5 @@ public class CustomerController implement FXUIScraper { // <1>
 
 <1> Implement the interface
 <2> The required method to make CustomerController scrapable.
+
+The scraper is of course also handy in UI tests, where you want access to relevant widgets in the UI.
