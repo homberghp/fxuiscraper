@@ -29,6 +29,7 @@ public interface FXUIScraper {
      * Start the scraping recursion.
      *
      * @param pred to apply to nodes found.
+     *
      * @return The list of nodes matching the predicate.
      */
     default List<Node> scrape( Predicate<Node> pred ) {
@@ -47,7 +48,8 @@ public interface FXUIScraper {
      * @param result list of matching nodes in this (sub) tree
      */
     static void scrape( Parent root, Predicate<Node> pred, List<Node> result ) {
-        ObservableList<Node> childrenUnmodifiable = root.getChildrenUnmodifiable();
+        ObservableList<Node> childrenUnmodifiable = root
+                .getChildrenUnmodifiable();
         for ( Node node : childrenUnmodifiable ) {
             if ( node.getId() != null && pred.test( node ) ) {
                 result.add( node );
@@ -62,9 +64,11 @@ public interface FXUIScraper {
      * Scrape for the properties.
      *
      * @param filter to find properties
+     *
      * @return the matching named string properties
      */
-    default List<KeyValuePair<String, StringProperty>> getNamedProperties( Predicate<Node> filter ) {
+    default List<KeyValuePair<String, StringProperty>> getNamedProperties( 
+            Predicate<Node> filter ) {
 
         return textInputControlStream( filter )
                 .map( n -> new KeyValuePairImpl<String, StringProperty>(
@@ -73,14 +77,16 @@ public interface FXUIScraper {
                 .collect( toList() );
     }
 
-    default Stream<TextInputControl> textInputControlStream( Predicate<Node> filter ) {
+    default Stream<TextInputControl> textInputControlStream( 
+            Predicate<Node> filter ) {
         Stream<TextInputControl> map = scrape( filter )
                 .stream().filter( n -> n instanceof TextInputControl )
                 .map( n -> TextInputControl.class.cast( n ) );
         return map;
     }
 
-    default List<KeyValuePair<String, String>> getNamedTextValues( Predicate<Node> filter ) {
+    default List<KeyValuePair<String, String>> getNamedTextValues( 
+            Predicate<Node> filter ) {
         return textInputControlStream( filter )
                 .map( n -> new KeyValuePairImpl<String, String>(
                 n.getId(), n.getText()
@@ -89,14 +95,15 @@ public interface FXUIScraper {
     }
 
     /**
-     * Convenience method to start at any parent.
+     * Convenience factory method to start at any parent.
+     * 
+     * Intended for those that find lambdas hard to grasp. 
      *
      * @param root of (sub)tree to scan
-     * @param pred to apply on the nodes
+     *
      * @return matching nodes in the tree
      */
-    static List<Node> scrapeFrom( final Parent root, Predicate<Node> pred ) {
-        FXUIScraper scraper = () -> root;
-        return scraper.scrape( pred );
+    static FXUIScraper standardScraper( final Parent root ) {
+        return  () -> root;
     }
 }

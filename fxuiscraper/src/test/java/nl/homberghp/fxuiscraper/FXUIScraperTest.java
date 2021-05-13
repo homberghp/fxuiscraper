@@ -50,7 +50,7 @@ public class FXUIScraperTest {
     //@Disabled("Think TDD")
     @org.junit.jupiter.api.Test
     public void tScrape() {
-        List<Node> scrape = cc.scrape( n -> n instanceof TextInputControl );
+        List<Node> scrape = FXUIScraper.standardScraper( cc.getRoot() ).scrape(   n -> n instanceof TextInputControl );
         List<String> collect = scrape
                 .stream()
                 .map( n -> TextInputControl.class.cast( n ) )

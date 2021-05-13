@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 public class KeyValuePairImpl<K, V> implements KeyValuePair<K, V> {
 
-    final K key;
-    final V value;
+    private final K key;
+    private final V value;
 
     public KeyValuePairImpl( K key, V value ) {
         this.key = key;
@@ -59,14 +59,6 @@ public class KeyValuePairImpl<K, V> implements KeyValuePair<K, V> {
             return false;
         }
         return true;
-    }
-
-    public K getKey() {
-        return key;
-    }
-
-    public V getValue() {
-        return value;
     }
 
     @Override
