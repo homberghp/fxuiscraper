@@ -1,2 +1,86 @@
-# fxuiscraper
-simple interface to extract input values and properties from a java fx Parent
+:source-highlighter: highlightjs
+
+= Java FX UI Scraper
+
+Simple interface to extract input values and properties from a java fx Parent.
+
+Inspired by https://stackoverflow.com/questions/13011023/javafx-looping-over-scenegraph-controls[StackOverflow #13011023].
+
+Often you need to obtain the text values from a UI component like a form.
+
+The simple library makes easy work of it.
+
+Let us first show the usage via a test:
+
+.Usage. The Pane is the root of the form that you want to 'scrape'
+[source,java,linenums]
+----
+    AnchorPane pane =....
+
+    //@Disabled("Think TDD")
+    @Test
+    void tSimpleScraping() {
+        FXUIScraper scraper = ()-> pane; // <1>
+        Predicate<Node> pred= n-> "dob".equals( n.getId() ); //<2>
+
+        List<Node> scraped = scraper.scrape( pred ); //<3>
+
+        assertThat(scraped).hasSize( 1); //<4>
+    }
+----
+
+<1> That simple.
+<2> Create a predicate. In the test we only want the field 'dob', or birthDate. +
+  Note that we put the text in front, so that Nodes that have no id (return null with getId()) are automatically ignored.This saves an extra nullity test.
+<3> Scrape for nodes in the example.
+<4> We expect one field.
+
+.Get all text controls.
+[source,java]
+----
+   List<Node> allTextControls =
+      scraper.scrape( n -> (null != n.getId())
+                      && (n instanceof TextInputControl) ); //<1>
+   assertThat( allTextControls ).hasSize( 3 ); //<2>
+----
+
+<1> Mind the parenthesis.
+<2> We have three text controls in the test object.
+
+== Combining with FXML
+
+In most cases it is best to have the controller implement the FXUIScraper, because
+you have most control over it, in particular when you want to use FXML files, with the help of
+SceneBuilder.
+
+Implementing the required interface becomes trivial if you abide these rules:
+
+* Make sure the root element that you want to use for scraping has a `fx:id` in the fxml  file.
+* and that the field is also available and injectable by the fxml loader.
+
+.Name the pane
+[source,xml]
+----
+<AnchorPane id="root" fx:id="root" fx:controller="app.CustomerController"> <!--1-->
+    ....
+</AnchorPane>
+----
+
+<1> Lost of other stuff left out. Important is providing the root id in line 1.
+
+.Use the pane's id
+[source,java]
+----
+public class CustomerController implement FXUIScraper { // <1>
+
+    @FXML
+    AnchorPane root;
+
+    Parent getRoot() { // <2>
+        return root;
+    }
+}
+----
+
+<1> Implement the interface
+<2> The required method to make CustomerController scrapable.
