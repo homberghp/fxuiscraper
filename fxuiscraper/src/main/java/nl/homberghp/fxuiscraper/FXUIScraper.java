@@ -17,16 +17,31 @@ import javafx.scene.control.TextInputControl;
 /**
  * Simple text property scraper.
  *
- * Usage:
+ * Usage, get all named (with a non-null id) nodes :
  * <pre class='brush:java'>
- * {@code
+ * 
  *  Parent root=...;
- *  FXUIScraper scraper = ()-> root;
- *  Set<String> controls=Set.of("name", "dob");
- *  Map<String,String> inputs=scraper.scrape(x -> true);
- *  // use inputs.
- * }
+ *  FXUIScraper scraper = (){@literal -> root};
+ *  {@literal Set<String>} controls=Set.of("name", "dob");
+ *  {@literal List<Nodes>} nodes=scraper.scrape({@literal x ->} true);
+ *  // use nodes
+ * 
  * </pre>
+ *
+ * Find all text inputs with specified names.
+ * <pre class="brush:java">
+ *   {@literal Map<String,String>} inputs=scraper.getKeyVales({@literal x ->} true, Set.of("dob", "name", "occupation"));
+ * </pre>
+ * Most methods in this interface are overloaded, where one takes a varags
+ * parameter of {@code String...}
+ * and the other takes a {@code Set<String>}. Prefer the later over the former
+ * of you are
+ * conscious about unneeded allocations. Save the JVM. Not that it matters very
+ * much, but
+ * you typically have one set of validators per GUI form and controller, which
+ * is constant, so there is no need
+ * to create a new array and then make a new set thereof.
+ *
  *
  * @author "Pieter van den Hombergh {@code pieter.van.den.hombergh@gmail.com}"
  */
@@ -34,6 +49,7 @@ public interface FXUIScraper {
 
     /**
      * Provide starting point for scraping.
+     *
      *
      * @return the root of the fx node tree to scrape
      */
@@ -55,7 +71,7 @@ public interface FXUIScraper {
 
     /**
      * Scrape for nodes matching predicate and names.
-     * Prefer this method of the varags variant, because the set is typically
+     * Prefer this method over the varags variant, because the set is typically
      * constant and can
      * be a static field in the client and you save the array and set
      * allocation.
