@@ -11,8 +11,8 @@ import static java.util.stream.Collectors.toMap;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
@@ -81,7 +81,7 @@ public class FXUIScraperTest {
 
         assertThat( collect1 ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-//                        "dob", "2021-05-12",
+
                         "city", "Venlo" )
         );
 
@@ -91,13 +91,13 @@ public class FXUIScraperTest {
     @Test
     public void tNamedStringPairs() {
        
-        Map<String, String> collect = cc.getNamedTextValues( x -> x instanceof TextInputControl )
+        Map<String, String> collect = cc.getNamedTextValues( x -> true )
                 .stream().collect(
                         Collectors
                                 .toMap( KeyValuePair::key, KeyValuePair::value ) );
         assertThat( collect ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-//                        "dob", "2021-05-12",
+                        "dob", "2021-05-12",
                         "city", "Venlo" )
         );
 
@@ -134,13 +134,32 @@ public class FXUIScraperTest {
     @Test
     void tKeyValues() {
         FXUIScraper scraper = () -> pane; // <1>
-        Predicate<Node> pred = n -> ( null != n.getId() )
-                && ( n instanceof TextInputControl );
-        Map<String, String> map = scraper.getKeyValues( pred );
+        Map<String, String> map = scraper.getKeyValues( x->true );
         assertThat( map ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-//                        "dob", "2021-05-12",
+                        "dob", "2021-05-12",
                         "city", "Venlo" ));
 //        fail( "method KeyValues completed succesfully; you know what to do" );
+    }
+    
+    /**
+     * See what combobox does
+     */
+    //@Disabled("Think TDD")
+//    @Test
+    void tWhatDoesComboBoxBaseReturn() {
+         FXUIScraper scraper = () -> pane; 
+        List<Node> scraped = scraper.scrape( x-> x instanceof ComboBoxBase );
+        ComboBoxBase<?> cb = (ComboBoxBase<?>) scraped.get( 0 );
+        Object value = cb.getValue();
+        
+        System.out.println( "value = " + value );
+        Class<?> vClass = value.getClass();
+        
+        System.out.println( "vClass = " + vClass );
+        
+        String toString = FXUIScraper.toString( cb );
+        System.out.println( "toString = '" + toString +"'");
+//        fail( "method WhatDoesComboBoxBaseReturn completed succesfully; you know what to do" );
     }
 }

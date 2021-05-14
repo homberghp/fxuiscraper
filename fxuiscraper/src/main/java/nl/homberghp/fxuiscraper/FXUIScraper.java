@@ -155,7 +155,7 @@ public interface FXUIScraper {
             return ( (TextInputControl) n ).getText();
         }
         if ( n instanceof ComboBoxBase ) {
-            return ( (ComboBoxBase) n ).valueProperty().asString().toString();
+            return ( (ComboBoxBase) n ).getValue().toString();
         }
 
         // never return null
