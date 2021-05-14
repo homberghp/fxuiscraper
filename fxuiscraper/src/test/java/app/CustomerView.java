@@ -1,7 +1,9 @@
 package app;
 
-import javafx.scene.Parent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -13,7 +15,7 @@ import javafx.scene.layout.GridPane;
  *
  * @author "Pieter van den Hombergh {@code pieter.van.den.hombergh@gmail.com}"
  */
-public class CustomerView extends AnchorPane  {
+public class CustomerView extends AnchorPane {
 
     public CustomerView() {
         init();
@@ -24,7 +26,8 @@ public class CustomerView extends AnchorPane  {
         getChildren().add( level1 );
 
         level1.setTop( tf( "name", "Piet Puk" ) );
-        TextField dob = tf( "dob", "2021-05-12" );
+        DatePicker dob = new DatePicker( LocalDate.parse( "2021-05-12" ) );
+        dob.setId( "dob" );
         TextField city = tf( "city", "Venlo" );
         GridPane level2 = new GridPane();
         Label l = new Label( "Text" );

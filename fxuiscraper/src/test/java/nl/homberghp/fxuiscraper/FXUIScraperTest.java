@@ -59,8 +59,9 @@ public class FXUIScraperTest {
                 .map( tc -> tc.getText() )
                 .collect( toList() );
 
-        assertThat( collect ).containsExactlyInAnyOrder( "Piet Puk", "Venlo",
-                                                         "2021-05-12" );
+        assertThat( collect ).containsExactlyInAnyOrder( "Piet Puk", "Venlo"
+//                ,                                                         "2021-05-12" 
+        );
 
 //        fail( "tScrape tScrape reached end. You know what to do." );
     }
@@ -69,7 +70,7 @@ public class FXUIScraperTest {
     @Test
     public void tNamedProps() {
         Map<String, StringProperty> collect = cc
-                .getNamedProperties( x -> true )
+                .getNamedProperties( x -> x instanceof TextInputControl)
                 .stream()
                 .collect( Collectors.toMap( KeyValuePair::key,
                                             KeyValuePair::value ) );
@@ -80,7 +81,7 @@ public class FXUIScraperTest {
 
         assertThat( collect1 ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-                        "dob", "2021-05-12",
+//                        "dob", "2021-05-12",
                         "city", "Venlo" )
         );
 
@@ -89,13 +90,14 @@ public class FXUIScraperTest {
 
     @Test
     public void tNamedStringPairs() {
-        Map<String, String> collect = cc.getNamedTextValues( x -> true )
+       
+        Map<String, String> collect = cc.getNamedTextValues( x -> x instanceof TextInputControl )
                 .stream().collect(
                         Collectors
                                 .toMap( KeyValuePair::key, KeyValuePair::value ) );
         assertThat( collect ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-                        "dob", "2021-05-12",
+//                        "dob", "2021-05-12",
                         "city", "Venlo" )
         );
 
@@ -123,7 +125,7 @@ public class FXUIScraperTest {
         Predicate<Node> pred = n -> ( null != n.getId() )
                 && ( n instanceof TextInputControl );
         List<Node> allTextControls = scraper.scrape( pred );
-        assertThat( allTextControls ).hasSize( 3 ); //<4>  FXUIScraper scraper = ()-> pane;
+        assertThat( allTextControls ).hasSize( 2 ); //<4>  FXUIScraper scraper = ()-> pane;
 
 //        fail( "method ShorterCode completed succesfully; you know what to do" );
     }
@@ -137,7 +139,7 @@ public class FXUIScraperTest {
         Map<String, String> map = scraper.getKeyValues( pred );
         assertThat( map ).containsExactlyInAnyOrderEntriesOf(
                 Map.of( "name", "Piet Puk",
-                        "dob", "2021-05-12",
+//                        "dob", "2021-05-12",
                         "city", "Venlo" ));
 //        fail( "method KeyValues completed succesfully; you know what to do" );
     }

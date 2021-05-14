@@ -3,14 +3,18 @@ package nl.homberghp.fxuiscraper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import java.util.stream.Stream;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.TextInputControl;
 
 /**
@@ -34,10 +38,11 @@ public interface FXUIScraper {
      *
      * @return The list of nodes matching the predicate.
      */
-    default List<Node> scrape( Predicate<Node> pred ) {
+    default List<Node> scrape( Predicate<Node> pred, String... controlNames ) {
         Parent root = getRoot();
-
+        Set<String> controls = Set.of( controlNames );
         List<Node> result = new ArrayList<>();
+        Predicate<Node> cPred = pred.and( n -> controls.contains( n ) );
         scrape( root, pred, result );
         return result;
     }
@@ -49,7 +54,7 @@ public interface FXUIScraper {
      * @param pred   to find matching nodes
      * @param result list of matching nodes in this (sub) tree
      */
-    static void scrape( Parent root, Predicate<Node> pred, List<Node> result ) {
+    private static void scrape( Parent root, Predicate<Node> pred, List<Node> result ) {
         ObservableList<Node> childrenUnmodifiable = root
                 .getChildrenUnmodifiable();
         for ( Node node : childrenUnmodifiable ) {
@@ -65,14 +70,14 @@ public interface FXUIScraper {
     /**
      * Scrape for the properties.
      *
-     * @param filter to find properties
+     * @param pred to find properties
      *
      * @return the matching named string properties
      */
-    default List<KeyValuePair<String, StringProperty>> getNamedProperties( 
-            Predicate<Node> filter ) {
-
-        return textInputControlStream( filter )
+    default List<KeyValuePair<String, StringProperty>> getNamedProperties(
+            Predicate<Node> pred ) {
+        
+        return textInputControlStream( pred )
                 .map( n -> new KeyValuePairImpl<String, StringProperty>(
                 n.getId(),
                 n.textProperty() ) )
@@ -81,50 +86,81 @@ public interface FXUIScraper {
 
     /**
      * Intermediate stream of name property pairs.
-     * @param filter to apply
+     *
+     * @param pred to apply
+     *
      * @return Stream of name TextInputControls
      */
-    default Stream<TextInputControl> textInputControlStream( 
-            Predicate<Node> filter ) {
-        Stream<TextInputControl> map = scrape( filter )
-                .stream().filter( n -> n instanceof TextInputControl )
+    default Stream<TextInputControl> textInputControlStream(
+            Predicate<Node> pred ) {
+        Predicate<Node> cPred = pred.and( this::isInputControl );
+        return scrape( cPred )
+                .stream()
                 .map( n -> TextInputControl.class.cast( n ) );
-        return map;
     }
 
     /**
      * Return the scraped data as a list of tuples.
+     *
      * @param pred filter to apply
+     *
      * @return map of input
      */
-    default List<KeyValuePair<String, String>> getNamedTextValues( 
+    default List<KeyValuePair<String, String>> getNamedTextValues(
             Predicate<Node> pred ) {
-        return textInputControlStream( pred )
+        return inputControlStream( pred )
                 .map( n -> new KeyValuePairImpl<String, String>(
-                n.getId(), n.getText()
+                n.getId(), toString( n )
         ) ).collect( toList() );
-
+        
+    }
+    
+    default Stream<Node> inputControlStream( Predicate<Node> pred ) {
+        Predicate<Node> cPred = pred.and( this::isInputControl );
+        return scrape( cPred ).stream();
+    }
+    
+    default boolean isInputControl( Node n ) {
+        return ( n instanceof TextInputControl )
+                || ( n instanceof ComboBoxBase );
     }
 
     /**
      * Return the scraped data as a map of string,string.
+     *
      * @param pred filter to apply
+     *
      * @return the map
      */
-    default Map<String,String> getKeyValues(Predicate<Node> pred){
-        return textInputControlStream( pred )
-                .collect( toMap(n-> n.getId(),n->n.getText()));
+    default Map<String, String> getKeyValues( Predicate<Node> pred ) {
+        return inputControlStream( pred )
+                .collect( toMap( n -> n.getId(), n -> toString( n ) ) );
     }
+
     /**
      * Convenience factory method to start at any parent.
-     * 
-     * Intended for those that find lambdas hard to grasp. 
+     *
+     * Intended for those that find lambdas hard to grasp.
      *
      * @param root of (sub)tree to scan
      *
      * @return matching nodes in the tree
      */
     static FXUIScraper standardScraper( final Parent root ) {
-        return  () -> root;
+        return () -> root;
     }
+    
+    static String toString( Node n ) {
+        if ( n instanceof TextInputControl ) {
+            return ( (TextInputControl) n ).getText();
+        }
+        if ( n instanceof ComboBoxBase ) {
+            return ( (ComboBoxBase) n ).valueProperty().asString().toString();
+        }
+
+        // never return null
+        return "";
+        
+    }
+    
 }
