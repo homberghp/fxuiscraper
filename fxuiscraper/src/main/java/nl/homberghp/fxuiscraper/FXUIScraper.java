@@ -3,6 +3,7 @@ package nl.homberghp.fxuiscraper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
@@ -23,7 +24,7 @@ import javafx.scene.control.TextInputControl;
  *  Parent root=...;
  *  FXUIScraper scraper = ()-> root;
  *  Set<String> controls=Set.of("name", "dob");
- *  Map<String,String> inputs=scraper.scrape(x -> true);
+ *  Map<String,String> inputs=scraper.scrape(x -> true, controls);
  *  // use inputs.
  * }
  * </pre>
@@ -44,7 +45,9 @@ public interface FXUIScraper {
      *
      *
      * @param pred         to apply to nodes found.
-     * @param controlNames of controls to find
+     * @param controlNames of controls to findThis should be sufficient to
+     *                     complete the puzzle.
+     *
      *
      * @return The list of nodes matching the predicate.
      */
@@ -56,9 +59,8 @@ public interface FXUIScraper {
     /**
      * Scrape for nodes matching predicate and names.
      * Prefer this method of the varags variant, because the set is typically
-     * constant and can
-     * be a static field in the client and you save the array and set
-     * allocation.
+     * constant and can be a static field in the client and you save on repeated
+     * array and set allocations.
      *
      * @param pred     to match
      * @param controls to find
@@ -69,7 +71,7 @@ public interface FXUIScraper {
         Parent root = getRoot();
         List<Node> result = new ArrayList<>();
         Predicate<Node> cPred = pred.and( n -> controls.contains( n.getId() ) );
-        scrape( root, pred, result );
+        scrape( root, cPred, result );
         return result;
     }
 
@@ -222,7 +224,7 @@ public interface FXUIScraper {
             return ( (TextInputControl) n ).getText();
         }
         if ( n instanceof ComboBoxBase ) {
-            return ( (ComboBoxBase) n ).getValue().toString();
+            return Objects.toString( ( (ComboBoxBase) n ).getValue() );
         }
 
         // never return null
