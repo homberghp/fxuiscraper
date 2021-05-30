@@ -19,20 +19,24 @@ import javafx.scene.control.TextInputControl;
  * Simple text property scraper.
  *
  * Usage, get all named (with a non-null id) nodes :
- * <pre class='brush:java'>
  * 
+ * <pre class='brush:java'>
+ *
  *  Parent root=...;
- *  FXUIScraper scraper = ()-> root;
- *  Set<String> controlNames=Set.of("name", "dob");
- *  Map<String,String> inputs=scraper.scrape(x -> true, controlNames);
+ *  FXUIScraper scraper = (){@literal ->} root;
+ *  Set&lt;String&gt; controlNames=Set.of("name", "dob");
+ *  Map&lt;String,String&gt; inputs=scraper.scrape(x {@literal ->} true, controlNames);
  *  // use inputs.
- * }
+ * 
  * </pre>
  *
  * Find all text inputs with specified names.
+ * 
  * <pre class="brush:java">
- *   {@literal Map<String,String>} inputs=scraper.getKeyVales({@literal x ->} true, Set.of("dob", "name", "occupation"));
+ * {@literal Map<String,String>} inputs=scraper.getKeyVales({@literal x ->}
+ *    true, Set.of("dob", "name", "occupation"));
  * </pre>
+ *
  * Most methods in this interface are overloaded, where one takes a varags
  * parameter of {@code String...}
  * and the other takes a {@code Set<String>}. Prefer the later over the former
@@ -75,7 +79,8 @@ public interface FXUIScraper {
     /**
      * Scrape for nodes matching predicate and names.
      * Prefer this method over the varags variant, because the set is typically
-     * constant and can be a static field in the client and you save the repeated 
+     * constant and can be a static field in the client and you save the
+     * repeated
      * array and/or set allocations.
      *
      * @param pred     to match
@@ -86,7 +91,8 @@ public interface FXUIScraper {
     default List<Node> scrape( Predicate<Node> pred, Set<String> controls ) {
         Parent root = getRoot();
         List<Node> result = new ArrayList<>();
-        Predicate<Node> cPred = pred.and( n -> controls.contains( n.getId() ) );
+        Predicate<Node> cPred = pred.and( n -> controls.isEmpty() || controls
+                .contains( n.getId() ) );
         scrape( root, cPred, result );
         return result;
     }
@@ -129,7 +135,7 @@ public interface FXUIScraper {
             Predicate<Node> pred, Set<String> controlNames ) {
 
         return textInputControlStream( pred, controlNames )
-                .map( n -> new KeyValuePairImpl<String, StringProperty>(
+                .map( n -> new KeyValuePairImpl<>(
                 n.getId(),
                 n.textProperty() ) )
                 .collect( toList() );
@@ -170,7 +176,7 @@ public interface FXUIScraper {
             Predicate<Node> pred,
             Set<String> names ) {
         return inputControlStream( pred, names )
-                .map( n -> new KeyValuePairImpl<String, String>(
+                .map( n -> new KeyValuePairImpl<>(
                 n.getId(), toString( n )
         ) ).collect( toList() );
 
